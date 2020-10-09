@@ -21,14 +21,18 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      - name: docker login
-        env: 
-          GithubPackagesUsername: ${{ secrets.GithubPackagesUsername}}
-          GithubPackagesPassword: ${{ secrets.GithubPackagesPassword}}
-        run: |
-          docker login -u $GithubPackagesUsername -p $GithubPackagesPassword
+        
       # Builds the docker image
       - name: docker build
         run: |
           docker build ./basic-package/ -t basic-package
-
+          
+      # pushes build docker image to github packages
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: ashleysetter/docker-node-test/demo
+          tag_with_ref: true
